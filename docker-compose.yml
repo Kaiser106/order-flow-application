@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:18.4
+    container_name: orderflow-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: kaiser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: orderflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:6.0
+    container_name: orderflow-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
