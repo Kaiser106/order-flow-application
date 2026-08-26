@@ -21,21 +21,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // REST API tasarladığımız için tarayıcı bağımlı CSRF korumasına bu aşamada ihtiyacımız yok.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Bu endpointler herkese açık olmalı.
                         .requestMatchers("/api/auth/**", "/graphql", "/graphiql").permitAll()
-                        // Geri kalan her istek kimlik doğrulaması gerektirir.
                         .anyRequest().authenticated()
                 )
+                .securityContext(securityContext -> securityContext
+                        .requireExplicitSave(false)
+                )
                 .sessionManagement(session -> session
-                        // Sadece ihtiyaç duyulduğunda (örn: Login sonrası) session yarat.
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        // Bir kullanıcı aynı anda sadece 1 cihazdan giriş yapabilsin (Kurumsal Tercih).
                         .maximumSessions(1)
                 );
-
         return http.build();
     }
 

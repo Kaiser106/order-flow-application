@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByRestaurantIdAndAvaliableTrue(Long restaurantId);
-
-    Optional<Product> findByIdAndRestaurantIdAndAvaliableTrue(Long id, Long restaurantId);
+    List<Product> findByRestaurantIdAndAvailableTrue(Long restaurantId);
+    Optional<Product> findByIdAndRestaurantIdAndAvailableTrue(Long id, Long restaurantId);
 }

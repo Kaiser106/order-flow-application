@@ -4,6 +4,7 @@ import com.orderflow.auth.service.CustomUserDetails;
 import com.orderflow.common.result.Result;
 import com.orderflow.customer.contract.CustomerContract;
 import com.orderflow.customer.entity.Customer;
+import com.orderflow.notification.service.OrderEventService;
 import com.orderflow.order.dto.CreateOrderRequest;
 import com.orderflow.order.dto.OrderItemRequest;
 import com.orderflow.order.dto.OrderResponse;
@@ -20,12 +21,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.orderflow.common.constant.PaginationConstants;
+import com.orderflow.common.dto.PageResponse;
+import com.orderflow.common.exception.ForbiddenException;
+import com.orderflow.common.exception.UnauthorizedException;
 import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+    private final OrderEventService orderEventService;
+
 
     private final OrderRepository orderRepository;
 
@@ -38,13 +48,14 @@ public class OrderService {
     @Transactional
     public Result<OrderResponse> createOrder(CreateOrderRequest request) {
 
-        // 1. O an oturum açmış (authenticated) kullanıcıyı Session/SecurityContext'ten alıyoruz.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            return Result.failure("User not authenticated", "ERR_UNAUTHORIZED");
+        }
+
         Long currentUserId = userDetails.getUser().getId();
-
-
         Long customerId = customerContract.getCustomerIdByUserId(currentUserId);
+
 
 
         if (!restaurantContract.isRestaurantActive(request.restaurantId())) {
@@ -114,5 +125,52 @@ public class OrderService {
                 order.getTotalPrice(),
                 order.getDeliveryAddress()
         );
+    }
+    @Transactional(readOnly = true)
+    public Result<PageResponse<OrderResponse>> getCustomerOrders(int page, int size) {
+        Long currentUserId = getCurrentUserId();
+        Long customerId = customerContract.getCustomerIdByUserId(currentUserId);
+
+        int validSize = Math.min(size, PaginationConstants.MAX_PAGE_SIZE);
+
+        Pageable pageable = PageRequest.of(page, validSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+
+        Page<Order> orderPage = orderRepository.findByCustomerId(customerId, pageable);
+        Page<OrderResponse> responsePage = orderPage.map(this::mapToResponse);
+
+        return Result.success(PageResponse.of(responsePage));
+    }
+
+    @Transactional
+    public Result<OrderResponse> cancelOrder(Long orderId) {
+        Long currentUserId = getCurrentUserId();
+        Long customerId = customerContract.getCustomerIdByUserId(currentUserId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("order.not.found"));
+
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new ForbiddenException("system.error.forbidden");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
+            return Result.failure("order.invalid.status", "ERR_ORD_02");
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        Order savedOrder = orderRepository.save(order);
+        orderEventService.sendOrderUpdate(orderId, OrderStatus.CANCELLED);
+        return Result.success(mapToResponse(savedOrder), "Order cancelled successfully.");
+    }
+
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("system.error.unauthorized");
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getUser().getId();
     }
 }

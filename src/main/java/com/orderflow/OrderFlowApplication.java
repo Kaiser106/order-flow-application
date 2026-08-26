@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 
 @SpringBootApplication
-@EnableJpaAuditing// Entity'lerdeki @CreatedDate ve @LastModifiedDate anotasyonlarının çalışmasını sağlar.
-// Bu sayede tarih atama işlemlerini manuel olarak yapmaktan (örn: entity.setCreatedAt(new Date())) kurtuluruz.
+@EnableJpaAuditing
+
 public class OrderFlowApplication {
 
 	public static void main(String[] args) {

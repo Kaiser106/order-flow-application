@@ -13,11 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-
+import java.util.List; // Import unutulmasın
 
 @Service
 @RequiredArgsConstructor
-
 public class ProductService implements ProductContract {
 
     private final ProductRepository productRepository;
@@ -25,21 +24,31 @@ public class ProductService implements ProductContract {
 
     @Override
     public BigDecimal getActiveProductPrice(Long productId, Long restaurantId) {
-        return productRepository.findByIdAndRestaurantIdAndAvaliableTrue(productId, restaurantId)
+        return productRepository.findByIdAndRestaurantIdAndAvailableTrue(productId, restaurantId)
                 .map(Product::getPrice)
                 .orElseThrow(() -> new IllegalArgumentException("Product is not available"));
     }
+
     @Override
-    public boolean isProductAvailableAndBelongsToRestaurant (Long productId,Long restaurantId){
-        return productRepository.findByIdAndRestaurantIdAndAvaliableTrue(productId,restaurantId).isPresent();
+    public boolean isProductAvailableAndBelongsToRestaurant(Long productId, Long restaurantId) {
+        return productRepository.findByIdAndRestaurantIdAndAvailableTrue(productId, restaurantId).isPresent();
+    }
+
+    // YENİ EKLENEN METOT
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByRestaurantId(Long restaurantId) {
+        return productRepository.findByRestaurantIdAndAvailableTrue(restaurantId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @Transactional
     public Result<ProductResponse> createProduct(CreateProductRequest request) {
-        // 1. Modüller arası kontrol: Restoran aktif mi?
         if (!restaurantContract.isRestaurantActive(request.restaurantId())) {
             return Result.failure("Restaurant is not active or does not exist.");
         }
+
         Restaurant restaurantRef = new Restaurant();
         restaurantRef.setId(request.restaurantId());
 
@@ -49,7 +58,7 @@ public class ProductService implements ProductContract {
         product.setDescription(request.description());
         product.setPrice(request.price());
         product.setCategory(request.category());
-        product.setAvaliable(true);
+        product.setAvailable(true);
         product.setImageUrl(request.imageUrl());
 
         Product savedProduct = productRepository.save(product);
@@ -64,10 +73,8 @@ public class ProductService implements ProductContract {
                 product.getDescription(),
                 product.getPrice(),
                 product.getCategory(),
-                product.isAvaliable(),
+                product.isAvailable(),
                 product.getImageUrl()
         );
     }
-
-
 }
