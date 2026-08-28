@@ -17,6 +17,8 @@ public record RegisterRequest(
         String lastName,
         @NotBlank(message = "{validation.field.notblank}")
         String phone,
-        @NotBlank(message = "{validation.field.notblank}")
-        String address
+
+        String address,
+
+        String role
 ) {}

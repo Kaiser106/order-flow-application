@@ -2,15 +2,12 @@
 # QUERIES (Veri Okuma İşlemleri - REST'teki GET)
 # -----------------------------------------
 type Query {
-    # İleride sayfalamalı (Pagination) getireceğimiz restoran listesi
     restaurants(page: Int = 0, size: Int = 10): RestaurantPage!
     restaurant(id: ID!): Restaurant
-
-    # Restoranın menüsündeki ürünler
     products(restaurantId: ID!): [Product]!
-
-    # Giriş yapan müşterinin siparişleri
     customerOrders(page: Int = 0, size: Int = 10): OrderPage!
+    availableOrders(page: Int = 0, size: Int = 10): OrderPage!
+    courierOrders(page: Int = 0, size: Int = 10): OrderPage!
 }
 
 # -----------------------------------------
@@ -20,6 +17,10 @@ type Mutation {
     createRestaurant(input: CreateRestaurantInput!): Restaurant!
     createProduct(input: CreateProductInput!): Product!
     createOrder(input: CreateOrderInput!): OrderResponse!
+
+    # Yeni eklenen iptal ve durum güncelleme mutasyonları
+    cancelOrder(id: ID!): OrderResponse!
+    updateOrderStatus(orderId: ID!, status: String!): OrderResponse!
 }
 
 # -----------------------------------------
@@ -34,7 +35,6 @@ type Restaurant {
     active: Boolean!
 }
 
-# Spring Data Page<T> nesnesinin GraphQL'deki karşılığı
 type RestaurantPage {
     content: [Restaurant]!
     page: Int!
@@ -74,8 +74,6 @@ type OrderPage {
 # -----------------------------------------
 # INPUTS (İstemciden Gelen Veri Tipleri - Request DTO Karşılıkları)
 # -----------------------------------------
-# Java'daki JSONB Map yapılarını GraphQL'de esnek tutmak için "String" (JSON string) olarak alabiliriz
-# veya özel Scalar tipler yazabiliriz. Şimdilik basitlik için JSON formatında String kabul ediyoruz.
 input CreateRestaurantInput {
     name: String!
     description: String

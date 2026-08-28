@@ -1,12 +1,9 @@
 package com.orderflow.order.entity;
 
 public enum OrderStatus {
-    PENDING,
-    CONFIRMED,
-    PREPARING,
-    READY_FOR_PICKUP,
-    PICKED_UP,
-    ON_THE_WAY,
-    DELIVERED,
-    CANCELLED
+    PREPARING,      // Hazırlanıyor (İlk oluşturulduğunda bu olacak)
+    PICKED_UP,      // Kurye teslim aldı
+    ON_THE_WAY,     // Yolda
+    DELIVERED,      // Teslim edildi
+    CANCELLED       // İptal edildi
 }

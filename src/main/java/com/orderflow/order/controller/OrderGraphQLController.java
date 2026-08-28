@@ -4,6 +4,7 @@ import com.orderflow.common.exception.BusinessException;
 import com.orderflow.common.result.Result;
 import com.orderflow.order.dto.CreateOrderRequest;
 import com.orderflow.order.dto.OrderResponse;
+import com.orderflow.order.entity.OrderStatus;
 import com.orderflow.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -40,5 +41,28 @@ public class OrderGraphQLController {
         int pageSize = size != null ? size : 10;
 
         return orderService.getCustomerOrders(pageNumber, pageSize).getData();
+    }
+    @MutationMapping
+    public OrderResponse updateOrderStatus(@Argument Long orderId, @Argument String status) {
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        Result<OrderResponse> result = orderService.updateOrderStatus(orderId, newStatus);
+        if (!result.isSuccess()) {
+            throw new BusinessException(result.getMessage(), result.getErrorCode());
+        }
+        return result.getData();
+    }
+
+    @QueryMapping
+    public PageResponse<OrderResponse> availableOrders(@Argument Integer page, @Argument Integer size) {
+        int pageNumber = page != null ? page : 0;
+        int pageSize = size != null ? size : 10;
+        return orderService.getAvailableOrders(pageNumber, pageSize).getData();
+    }
+
+    @QueryMapping
+    public PageResponse<OrderResponse> courierOrders(@Argument Integer page, @Argument Integer size) {
+        int pageNumber = page != null ? page : 0;
+        int pageSize = size != null ? size : 10;
+        return orderService.getCourierOrders(pageNumber, pageSize).getData();
     }
 }
