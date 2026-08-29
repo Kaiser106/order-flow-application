@@ -5,6 +5,7 @@ import com.orderflow.common.exception.BusinessException;
 import com.orderflow.common.result.Result;
 import com.orderflow.restaurant.dto.CreateRestaurantRequest;
 import com.orderflow.restaurant.dto.RestaurantResponse;
+import com.orderflow.restaurant.dto.UpdateRestaurantRequest;
 import com.orderflow.restaurant.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -20,13 +21,11 @@ public class RestaurantGraphQLController {
 
 
     @MutationMapping
-    public RestaurantResponse createRestaurant(@Argument CreateRestaurantRequest input) {
-        Result<RestaurantResponse> result = restaurantService.createRestaurant(input);
-
+    public RestaurantResponse updateRestaurant(@Argument UpdateRestaurantRequest input) {
+        Result<RestaurantResponse> result = restaurantService.updateRestaurant(input);
         if (!result.isSuccess()) {
             throw new BusinessException(result.getMessage(), result.getErrorCode());
         }
-
         return result.getData();
     }
 

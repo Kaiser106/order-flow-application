@@ -1,5 +1,6 @@
 package com.orderflow.restaurant.entity;
 
+import com.orderflow.auth.entity.User;
 import com.orderflow.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,6 +24,10 @@ public class Restaurant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
+    private User user;
 
 
     @Column(nullable = false)

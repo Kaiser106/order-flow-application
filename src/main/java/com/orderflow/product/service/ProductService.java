@@ -1,5 +1,9 @@
 package com.orderflow.product.service;
 
+import com.orderflow.auth.enums.Role;
+import com.orderflow.auth.service.CustomUserDetails;
+import com.orderflow.common.exception.ForbiddenException;
+import com.orderflow.common.exception.UnauthorizedException;
 import com.orderflow.common.result.Result;
 import com.orderflow.product.contract.ProductContract;
 import com.orderflow.product.dto.CreateProductRequest;
@@ -9,11 +13,14 @@ import com.orderflow.product.repository.ProductRepository;
 import com.orderflow.restaurant.contract.RestaurantContract;
 import com.orderflow.restaurant.entity.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.math.BigDecimal;
-import java.util.List; // Import unutulmasın
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +41,7 @@ public class ProductService implements ProductContract {
         return productRepository.findByIdAndRestaurantIdAndAvailableTrue(productId, restaurantId).isPresent();
     }
 
-    // YENİ EKLENEN METOT
+
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByRestaurantId(Long restaurantId) {
         return productRepository.findByRestaurantIdAndAvailableTrue(restaurantId)
@@ -43,14 +50,20 @@ public class ProductService implements ProductContract {
                 .toList();
     }
 
+
     @Transactional
     public Result<ProductResponse> createProduct(CreateProductRequest request) {
-        if (!restaurantContract.isRestaurantActive(request.restaurantId())) {
+        Long currentUserId = getCurrentUserIdSafely();
+
+
+        Long restaurantId = restaurantContract.getRestaurantIdByUserId(currentUserId);
+
+        if (!restaurantContract.isRestaurantActive(restaurantId)) {
             return Result.failure("Restaurant is not active or does not exist.");
         }
 
         Restaurant restaurantRef = new Restaurant();
-        restaurantRef.setId(request.restaurantId());
+        restaurantRef.setId(restaurantId);
 
         Product product = new Product();
         product.setRestaurant(restaurantRef);
@@ -63,6 +76,20 @@ public class ProductService implements ProductContract {
 
         Product savedProduct = productRepository.save(product);
         return Result.success(mapToResponse(savedProduct));
+    }
+
+
+    private Long getCurrentUserIdSafely() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new UnauthorizedException("system.error.unauthorized");
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        if(userDetails.getUser().getRole() != Role.RESTAURANT) {
+            throw new ForbiddenException("Sadece işletme hesapları menüye ürün ekleyebilir.");
+        }
+        return userDetails.getUser().getId();
     }
 
     private ProductResponse mapToResponse(Product product) {

@@ -1,5 +1,6 @@
 package com.orderflow.order.service;
 
+import com.orderflow.auth.enums.Role;
 import com.orderflow.auth.service.CustomUserDetails;
 import com.orderflow.common.result.Result;
 import com.orderflow.customer.contract.CustomerContract;
@@ -143,17 +144,35 @@ public class OrderService {
 
     @Transactional
     public Result<OrderResponse> cancelOrder(Long orderId) {
-        Long currentUserId = getCurrentUserId();
-        Long customerId = customerContract.getCustomerIdByUserId(currentUserId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("system.error.unauthorized");
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long currentUserId = userDetails.getUser().getId();
+        Role userRole = userDetails.getUser().getRole();
+
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("order.not.found"));
 
-        if (!order.getCustomer().getId().equals(customerId)) {
-            throw new ForbiddenException("system.error.forbidden");
+
+        if (userRole == Role.CUSTOMER) {
+            Long customerId = customerContract.getCustomerIdByUserId(currentUserId);
+            if (!order.getCustomer().getId().equals(customerId)) {
+                throw new ForbiddenException("system.error.forbidden");
+            }
+        } else if (userRole == Role.RESTAURANT) {
+            Long restaurantId = restaurantContract.getRestaurantIdByUserId(currentUserId);
+            if (!order.getRestaurant().getId().equals(restaurantId)) {
+                throw new ForbiddenException("system.error.forbidden");
+            }
+        } else {
+
+            throw new ForbiddenException("Siparişi sadece müşteri veya restoran iptal edebilir.");
         }
 
-        // GÜNCELLEME: Artık sadece PREPARING durumundayken iptal edilebilir
+
         if (order.getStatus() != OrderStatus.PREPARING) {
             return Result.failure("order.invalid.status", "ERR_ORD_02");
         }

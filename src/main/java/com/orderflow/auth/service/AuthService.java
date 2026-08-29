@@ -8,12 +8,16 @@ import com.orderflow.auth.repository.UserRepository;
 import com.orderflow.common.result.Result;
 import com.orderflow.customer.entity.Customer;
 import com.orderflow.customer.repository.CustomerRepository;
-import com.orderflow.courier.entity.Courier; // Eklendi
-import com.orderflow.courier.repository.CourierRepository; // Eklendi
+import com.orderflow.courier.entity.Courier;
+import com.orderflow.courier.repository.CourierRepository;
+import com.orderflow.restaurant.entity.Restaurant;
+import com.orderflow.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +25,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
-    private final CourierRepository courierRepository; // Eklendi
+    private final CourierRepository courierRepository;
+    private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -31,9 +36,14 @@ public class AuthService {
         }
 
 
-        Role userRole = (request.role() != null && request.role().equalsIgnoreCase("COURIER"))
-                ? Role.COURIER
-                : Role.CUSTOMER;
+        Role userRole = Role.CUSTOMER;
+        if (request.role() != null) {
+            if (request.role().equalsIgnoreCase("COURIER")) {
+                userRole = Role.COURIER;
+            } else if (request.role().equalsIgnoreCase("RESTAURANT")) {
+                userRole = Role.RESTAURANT;
+            }
+        }
 
 
         User user = new User();
@@ -58,9 +68,25 @@ public class AuthService {
             courier.setFirstName(request.firstName());
             courier.setLastName(request.lastName());
             courier.setPhone(request.phone());
-            courier.setActive(true); // Test için kuryeyi direkt aktif yapıyoruz
+            courier.setActive(true);
             courierRepository.save(courier);
+
+        } else if (userRole == Role.RESTAURANT) {
+            Restaurant restaurant = new Restaurant();
+            restaurant.setUser(savedUser);
+            restaurant.setName(request.firstName() + " İşletmesi");
+            restaurant.setEmail(request.email());
+            restaurant.setPhone(request.phone());
+            restaurant.setDescription("Yeni İşletme");
+
+
+            restaurant.setAddress(Map.of("city", "Belirtilmedi", "district", "Belirtilmedi"));
+            restaurant.setWorkingHours(Map.of("open", "09:00", "close", "22:00"));
+            restaurant.setActive(true);
+
+            restaurantRepository.save(restaurant);
         }
+
 
         return Result.success(
                 new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name()),

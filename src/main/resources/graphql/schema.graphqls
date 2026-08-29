@@ -14,11 +14,11 @@ type Query {
 # MUTATIONS (Veri Değiştirme İşlemleri - REST'teki POST/PUT/DELETE)
 # -----------------------------------------
 type Mutation {
-    createRestaurant(input: CreateRestaurantInput!): Restaurant!
+
+    updateRestaurant(input: UpdateRestaurantInput!): Restaurant!
+
     createProduct(input: CreateProductInput!): Product!
     createOrder(input: CreateOrderInput!): OrderResponse!
-
-    # Yeni eklenen iptal ve durum güncelleme mutasyonları
     cancelOrder(id: ID!): OrderResponse!
     updateOrderStatus(orderId: ID!, status: String!): OrderResponse!
 }
@@ -74,17 +74,18 @@ type OrderPage {
 # -----------------------------------------
 # INPUTS (İstemciden Gelen Veri Tipleri - Request DTO Karşılıkları)
 # -----------------------------------------
-input CreateRestaurantInput {
+input UpdateRestaurantInput {
     name: String!
     description: String
     phone: String!
     email: String!
-    address: String!
-    workingHours: String!
+    address: String!      # JSON formatında string
+    workingHours: String! # JSON formatında string
+    active: Boolean!
 }
 
 input CreateProductInput {
-    restaurantId: ID!
+
     name: String!
     description: String
     price: Float!

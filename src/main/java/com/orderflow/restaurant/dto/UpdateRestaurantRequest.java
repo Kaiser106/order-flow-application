@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Map;
-
 public record UpdateRestaurantRequest(
         @NotBlank(message = "{validation.field.notblank}")
         String name,
@@ -19,14 +17,12 @@ public record UpdateRestaurantRequest(
         @Email(message = "{validation.email.invalid}")
         String email,
 
-        @NotNull(message = "{validation.field.notblank}")
-        Map<String, Object> address,
+        @NotBlank(message = "{validation.field.notblank}")
+        String address,
 
-        @NotNull(message = "{validation.field.notblank}")
-        Map<String, Object> workingHours,
-
+        @NotBlank(message = "{validation.field.notblank}")
+        String workingHours,
 
         @NotNull(message = "{validation.field.notblank}")
         Boolean active
-) {
-}
+) {}
