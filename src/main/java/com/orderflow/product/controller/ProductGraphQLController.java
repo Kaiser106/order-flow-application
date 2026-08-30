@@ -30,7 +30,6 @@ public class ProductGraphQLController {
     }
     @QueryMapping
     public List<ProductResponse> products(@Argument Long restaurantId) {
-        // ProductService içerisindeki metodu çağırıp liste dönüyoruz
         return productService.getProductsByRestaurantId(restaurantId);
     }
 }

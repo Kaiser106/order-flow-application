@@ -27,7 +27,7 @@ public class LoggingAspect {
 
     private final LoggingService loggingService;
 
-    // Pointcut: Hangi metotların arasına gireceğimizi (intercept) tanımladığımız kural.
+    // Pointcut: Hangi metotların arasına gireceğimizi (intercept/yakaladigimiz) tanımladığımız kural.
     // "com.orderflow altındaki tüm 'service' paketlerinde bulunan tüm metotlar" anlamına gelir.
     // Pointcut kuralını güncelliyoruz: Service paketlerini dinle AMA logging paketini (ve kendini) DİNLEME!
     @Pointcut("within(com.orderflow..service..*) && !within(com.orderflow.logging..*)")

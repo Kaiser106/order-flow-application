@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-// Bilerek @SQLRestriction eklemedik. Tarihsel sebeplerle siparişler kalıcı olmalıdır.
 @Getter
 @Setter
 @NoArgsConstructor

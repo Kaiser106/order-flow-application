@@ -63,7 +63,6 @@ public class OrderService {
         Order order = new Order();
         order.setCustomer(customerRef);
         order.setRestaurant(restaurantRef);
-        // GÜNCELLEME: Artık sipariş direkt PREPARING olarak başlıyor
         order.setStatus(OrderStatus.PREPARING);
         order.setDeliveryAddress(request.deliveryAddress());
 
@@ -94,18 +93,18 @@ public class OrderService {
         return Result.success(mapToResponse(savedOrder), "order.created.successfully");
     }
 
-    // YENİ EKLENEN METOT: Kuryenin siparişi alması ve statü güncellemesi
+
     @Transactional
     public Result<OrderResponse> updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Long currentUserId = getCurrentUserId();
 
-        // Eğer giren kişi kurye değilse, bu satır zaten hata fırlatıp işlemi kesecektir.
+
         Long courierId = courierContract.getCourierIdByUserId(currentUserId);
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("order.not.found"));
 
-        // Kurye siparişi ilk defa üzerine alıyorsa (PICKED_UP)
+
         if (newStatus == OrderStatus.PICKED_UP) {
             if (order.getCourier() != null && !order.getCourier().getId().equals(courierId)) {
                 return Result.failure("Bu sipariş başka bir kurye tarafından alınmış.", "ERR_ORD_03");
@@ -114,7 +113,7 @@ public class OrderService {
             courierRef.setId(courierId);
             order.setCourier(courierRef);
         } else {
-            // Yolda veya Teslim edildi durumları için siparişi bu kuryenin almış olması şart
+
             if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
                 throw new ForbiddenException("Sadece kendi aldığınız siparişleri güncelleyebilirsiniz.");
             }
@@ -123,7 +122,7 @@ public class OrderService {
         order.setStatus(newStatus);
         Order savedOrder = orderRepository.save(order);
 
-        // Müşteriye SSE üzerinden canlı bildirim gönder
+
         orderEventService.sendOrderUpdate(orderId, newStatus);
 
         return Result.success(mapToResponse(savedOrder), "Order status updated.");

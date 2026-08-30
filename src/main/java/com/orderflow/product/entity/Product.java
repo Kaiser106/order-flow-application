@@ -41,7 +41,7 @@ public class Product extends BaseEntity {
     private String category;
 
     @Column(nullable = false)
-    private boolean available = true; // avaliable kelimesini available yaptık
+    private boolean available = true;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
