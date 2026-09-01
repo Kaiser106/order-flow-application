@@ -1,6 +1,6 @@
 CREATE TABLE couriers (
-                          id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                          user_id BIGINT NOT NULL UNIQUE,
+                          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                          user_id UUID NOT NULL UNIQUE,
                           first_name VARCHAR(100) NOT NULL,
                           last_name VARCHAR(100) NOT NULL,
                           phone VARCHAR(20) NOT NULL,

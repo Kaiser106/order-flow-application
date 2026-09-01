@@ -1,7 +1,3 @@
 package com.orderflow.auth.dto;
-
-public record AuthResponse(
-        Long id,
-        String email,
-        String role
-) {}
+import java.util.UUID;
+public record AuthResponse(UUID id, String email, String role) {}

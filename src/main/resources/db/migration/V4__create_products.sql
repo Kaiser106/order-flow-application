@@ -1,6 +1,6 @@
 CREATE TABLE products (
-                          id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                          restaurant_id BIGINT NOT NULL,
+                          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                          restaurant_id UUID NOT NULL,
                           name VARCHAR(255) NOT NULL,
                           description TEXT,
                           price DECIMAL(10, 2) NOT NULL,

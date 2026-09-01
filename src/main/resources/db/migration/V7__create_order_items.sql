@@ -1,7 +1,7 @@
 CREATE TABLE order_items (
-                             id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                             order_id BIGINT NOT NULL,
-                             product_id BIGINT NOT NULL,
+                             id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                             order_id UUID NOT NULL,
+                             product_id UUID NOT NULL,
                              quantity INT NOT NULL,
                              unit_price DECIMAL(10, 2) NOT NULL,
                              total_price DECIMAL(10, 2) NOT NULL,

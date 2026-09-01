@@ -1,5 +1,4 @@
 package com.orderflow.restaurant.entity;
-
 import com.orderflow.auth.entity.User;
 import com.orderflow.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -9,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
-
 import java.util.Map;
 
 @Entity
@@ -18,41 +16,24 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-
 public class Restaurant extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private User user;
-
-
     @Column(nullable = false)
     private String name;
-
     @Column(columnDefinition = "TEXT")
     private String description;
-
     @Column(nullable = false)
     private String phone;
-
     @Column(nullable = false)
     private String email;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
-    private Map<String ,Object> address;
-
+    private Map<String, Object> address;
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb",nullable = false)
-    private Map<String ,Object> workingHours;
-
+    @Column(columnDefinition = "jsonb", nullable = false)
+    private Map<String, Object> workingHours;
     @Column(nullable = false)
     private boolean active;
-
-
-
 }

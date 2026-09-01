@@ -1,4 +1,4 @@
-package com.orderflow.notification.service;
+package com.orderflow.order.notification;
 
 import com.orderflow.order.entity.OrderStatus;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +19,9 @@ import java.util.Locale;
 public class OrderEventService {
 
     private final SseConnectionManager sseConnectionManager;
-    private final MessageSource messageSource; // i18n çevirileri için (messages.properties)
+    private final MessageSource messageSource;
 
-    public void sendOrderUpdate(Long orderId, OrderStatus status) {
+    public void sendOrderUpdate(UUID orderId, OrderStatus status) {
         SseEmitter emitter = sseConnectionManager.getConnection(orderId);
 
 
@@ -51,5 +52,5 @@ public class OrderEventService {
     }
 
 
-    public record SseEventData(Long orderId, String status, String message, String timestamp) {}
+    public record SseEventData(UUID orderId, String status, String message, String timestamp) {}
 }

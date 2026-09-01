@@ -4,10 +4,11 @@ import com.orderflow.auth.service.CustomUserDetails;
 import com.orderflow.common.exception.ForbiddenException;
 import com.orderflow.common.exception.ResourceNotFoundException;
 import com.orderflow.customer.contract.CustomerContract;
-import com.orderflow.notification.service.SseConnectionManager;
+import com.orderflow.order.notification.SseConnectionManager;
 import com.orderflow.order.entity.Order;
 import com.orderflow.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +28,13 @@ public class OrderTrackingController {
 
     @GetMapping(value = "/{orderId}/tracking", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter trackOrder(
-            @PathVariable Long orderId,
+            @PathVariable UUID orderId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("order.not.found"));
 
-        Long customerId = customerContract.getCustomerIdByUserId(userDetails.getUser().getId());
+        UUID customerId = customerContract.getCustomerIdByUserId(userDetails.getUser().getId());
 
 
         if (!order.getCustomer().getId().equals(customerId)) {

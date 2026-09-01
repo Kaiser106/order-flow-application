@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * @Aspect: Spring'e bu sınıfın bir AOP bileşeni olduğunu bildirir.
@@ -40,7 +41,7 @@ public class LoggingAspect {
     @Around("serviceLayerPointcut()")
     public Object logServiceAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
-        Long currentUserId = getCurrentUserIdSafely();
+        UUID currentUserId = getCurrentUserIdSafely();
 
         // Şifre sızıntısını önlemek için argümanları filtreden geçiriyoruz
         String maskedArgs = maskSensitiveArguments(joinPoint.getArgs());
@@ -108,15 +109,13 @@ public class LoggingAspect {
     }
 
     // Sistem hata vermesin diye kimlik bilgisini güvenli çeken yardımcı metot
-    private Long getCurrentUserIdSafely() {
+    private UUID getCurrentUserIdSafely() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
                 return userDetails.getUser().getId();
             }
-        } catch (Exception e) {
-            // Güvenlik bağlamı yoksa (Örn: Giriş yapmamış biri) id dönme
-        }
+        } catch (Exception e) {}
         return null;
     }
 }

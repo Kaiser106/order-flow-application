@@ -1,6 +1,6 @@
 CREATE TABLE restaurants (
-                             id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                             user_id BIGINT NOT NULL UNIQUE,
+                             id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                             user_id UUID NOT NULL UNIQUE,
                              name VARCHAR(255) NOT NULL,
                              description TEXT,
                              phone VARCHAR(20) NOT NULL,

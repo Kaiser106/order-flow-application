@@ -6,27 +6,22 @@ import com.orderflow.auth.entity.User;
 import com.orderflow.auth.enums.Role;
 import com.orderflow.auth.repository.UserRepository;
 import com.orderflow.common.result.Result;
-import com.orderflow.customer.entity.Customer;
-import com.orderflow.customer.repository.CustomerRepository;
-import com.orderflow.courier.entity.Courier;
-import com.orderflow.courier.repository.CourierRepository;
-import com.orderflow.restaurant.entity.Restaurant;
-import com.orderflow.restaurant.repository.RestaurantRepository;
+import com.orderflow.customer.contract.CustomerContract;
+import com.orderflow.courier.contract.CourierContract;
+import com.orderflow.restaurant.contract.RestaurantContract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final CustomerRepository customerRepository;
-    private final CourierRepository courierRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final CustomerContract customerContract;
+    private final CourierContract courierContract;
+    private final RestaurantContract restaurantContract;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -34,7 +29,6 @@ public class AuthService {
         if (userRepository.existsByEmail(request.email())) {
             return Result.failure("Email is already in use.");
         }
-
 
         Role userRole = Role.CUSTOMER;
         if (request.role() != null) {
@@ -45,7 +39,6 @@ public class AuthService {
             }
         }
 
-
         User user = new User();
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -54,39 +47,12 @@ public class AuthService {
 
 
         if (userRole == Role.CUSTOMER) {
-            Customer customer = new Customer();
-            customer.setUser(savedUser);
-            customer.setFirstname(request.firstName());
-            customer.setLastName(request.lastName());
-            customer.setPhone(request.phone());
-            customer.setAddress(request.address() != null ? request.address() : "Belirtilmemiş");
-            customerRepository.save(customer);
-
+            customerContract.createCustomer(savedUser, request.firstName(), request.lastName(), request.phone(), request.address());
         } else if (userRole == Role.COURIER) {
-            Courier courier = new Courier();
-            courier.setUser(savedUser);
-            courier.setFirstName(request.firstName());
-            courier.setLastName(request.lastName());
-            courier.setPhone(request.phone());
-            courier.setActive(true);
-            courierRepository.save(courier);
-
+            courierContract.createCourier(savedUser, request.firstName(), request.lastName(), request.phone());
         } else if (userRole == Role.RESTAURANT) {
-            Restaurant restaurant = new Restaurant();
-            restaurant.setUser(savedUser);
-            restaurant.setName(request.firstName() + " İşletmesi");
-            restaurant.setEmail(request.email());
-            restaurant.setPhone(request.phone());
-            restaurant.setDescription("Yeni İşletme");
-
-
-            restaurant.setAddress(Map.of("city", "Belirtilmedi", "district", "Belirtilmedi"));
-            restaurant.setWorkingHours(Map.of("open", "09:00", "close", "22:00"));
-            restaurant.setActive(true);
-
-            restaurantRepository.save(restaurant);
+            restaurantContract.createDefaultRestaurant(savedUser, request.firstName(), request.email(), request.phone());
         }
-
 
         return Result.success(
                 new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name()),

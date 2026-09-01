@@ -1,8 +1,8 @@
 CREATE TABLE orders (
-                        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                        customer_id BIGINT NOT NULL,
-                        restaurant_id BIGINT NOT NULL,
-                        courier_id BIGINT,
+                        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                        customer_id UUID NOT NULL,
+                        restaurant_id UUID NOT NULL,
+                        courier_id UUID,
                         status VARCHAR(50) NOT NULL,
                         total_price DECIMAL(10, 2) NOT NULL,
                         delivery_address TEXT NOT NULL,

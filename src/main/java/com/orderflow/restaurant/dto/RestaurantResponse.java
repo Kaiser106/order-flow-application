@@ -1,10 +1,9 @@
 package com.orderflow.restaurant.dto;
-
 import java.util.Map;
-
+import java.util.UUID;
 
 public record RestaurantResponse(
-        Long id,
+        UUID id,
         String name,
         String description,
         String phone,

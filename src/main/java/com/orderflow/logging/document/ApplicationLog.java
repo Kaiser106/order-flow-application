@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.time.OffsetDateTime;
 
 @Document(collection = "application_logs")
@@ -16,14 +17,14 @@ import java.time.OffsetDateTime;
 public class ApplicationLog {
 
     @Id
-    private String id; // MongoDB varsayılan olarak String tipinde ObjectId üretir
+    private String id;
 
-    private String level; // INFO, ERROR, WARN
-    private String action; // CREATE_ORDER, REGISTER, vb.
-    private Long userId; // İşlemi yapan kullanıcı
-    private String entityType; // ORDER, PRODUCT, CUSTOMER
+    private String level;
+    private String action;
+    private UUID userId;
+    private String entityType;
     private String entityId;
     private String message;
-    private Object metadata; // Hata detayı veya ekstra JSON verisi
+    private Object metadata;
     private Instant timestamp;
 }

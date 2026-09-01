@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ public class LoggingService {
 
     private final ApplicationLogRepository applicationLogRepository;
 
-    public void logAction(String level, String action, Long userId, String entityType, String entityId, String message, Object metadata) {
+    public void logAction(String level, String action, UUID userId, String entityType, String entityId, String message, Object metadata) {
         ApplicationLog logEntry = ApplicationLog.builder()
                 .level(level)
                 .action(action)

@@ -6,6 +6,7 @@ import com.orderflow.product.dto.CreateProductRequest;
 import com.orderflow.product.dto.ProductResponse;
 import com.orderflow.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -29,7 +30,7 @@ public class ProductGraphQLController {
         return result.getData();
     }
     @QueryMapping
-    public List<ProductResponse> products(@Argument Long restaurantId) {
+    public List<ProductResponse> products(@Argument UUID restaurantId) {
         return productService.getProductsByRestaurantId(restaurantId);
     }
 }

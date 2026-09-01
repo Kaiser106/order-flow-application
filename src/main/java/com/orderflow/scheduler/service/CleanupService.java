@@ -47,7 +47,7 @@ public class CleanupService {
             loggingService.logAction(
                     "INFO",
                     "CRON_HARD_DELETE",
-                    0L, // Sistem tarafından yapıldığı için User ID 0 (veya SYSTEM_USER) verebiliriz
+                    null,
                     "SYSTEM",
                     "ALL_SOFT_DELETED",
                     message,
@@ -57,7 +57,7 @@ public class CleanupService {
         } catch (Exception e) {
             log.error("Error during hard delete cleanup", e);
             loggingService.logAction(
-                    "ERROR", "CRON_HARD_DELETE_FAILED", 0L, "SYSTEM", "ALL", e.getMessage(), null
+                    "ERROR", "CRON_HARD_DELETE_FAILED", null, "SYSTEM", "ALL", e.getMessage(), null
             );
             throw e; // Transaction'ın geri alınması (rollback) için fırlatıyoruz
         }

@@ -1,5 +1,4 @@
 package com.orderflow.auth.entity;
-
 import com.orderflow.auth.enums.Role;
 import com.orderflow.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -7,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.io.Serializable; // 1. BU IMPORTU EKLE
+import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
@@ -17,17 +15,10 @@ import java.io.Serializable; // 1. BU IMPORTU EKLE
 @Setter
 @NoArgsConstructor
 public class User extends BaseEntity implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false, unique = true)
     private String email;
-
     @Column(nullable = false)
     private String password;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 }
