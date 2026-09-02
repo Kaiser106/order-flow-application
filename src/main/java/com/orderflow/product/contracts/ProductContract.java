@@ -1,4 +1,5 @@
-package com.orderflow.product.contract;
+package com.orderflow.product.contracts;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 

@@ -1,15 +1,17 @@
-package com.orderflow.courier.service;
+package com.orderflow.courier.contracts.impl;
+
 import com.orderflow.auth.entity.User;
-import com.orderflow.courier.contract.CourierContract;
+import com.orderflow.courier.contracts.CourierContract;
 import com.orderflow.courier.entity.Courier;
 import com.orderflow.courier.repository.CourierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CourierService implements CourierContract {
+public class CourierContractImpl implements CourierContract {
     private final CourierRepository courierRepository;
 
     @Override

@@ -17,7 +17,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 public class Restaurant extends BaseEntity {
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private User user;
     @Column(nullable = false)

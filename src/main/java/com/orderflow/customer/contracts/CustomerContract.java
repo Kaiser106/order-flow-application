@@ -1,4 +1,5 @@
-package com.orderflow.customer.contract;
+package com.orderflow.customer.contracts;
+
 import com.orderflow.auth.entity.User;
 import java.util.UUID;
 

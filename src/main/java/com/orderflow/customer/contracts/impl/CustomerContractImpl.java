@@ -1,15 +1,17 @@
-package com.orderflow.customer.service;
+package com.orderflow.customer.contracts.impl;
+
 import com.orderflow.auth.entity.User;
-import com.orderflow.customer.contract.CustomerContract;
+import com.orderflow.customer.contracts.CustomerContract;
 import com.orderflow.customer.entity.Customer;
 import com.orderflow.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerService implements CustomerContract {
+public class CustomerContractImpl implements CustomerContract {
     private final CustomerRepository customerRepository;
 
     @Override

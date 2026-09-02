@@ -1,4 +1,5 @@
-package com.orderflow.restaurant.contract;
+package com.orderflow.restaurant.contracts;
+
 import com.orderflow.auth.entity.User;
 import java.util.UUID;
 
