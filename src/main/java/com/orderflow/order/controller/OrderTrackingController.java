@@ -47,6 +47,15 @@ public class OrderTrackingController {
         emitter.onTimeout(() -> sseConnectionManager.removeConnection(orderId));
         emitter.onError((e) -> sseConnectionManager.removeConnection(orderId));
 
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("CONNECTED")
+                    .data("SSE bağlantısı başarıyla kuruldu. Sipariş güncellemeleri bekleniyor..."));
+        } catch (Exception e) {
+            sseConnectionManager.removeConnection(orderId);
+        }
+
         return emitter;
     }
 }
